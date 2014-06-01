@@ -1,0 +1,43 @@
+<%= render 'spree/admin/shared/configuration_menu' %>
+
+<% content_for :page_title do %>
+  <%= Spree.t(:product_uploads) %>
+<% end %>
+
+<% content_for :page_actions do %>
+  <li>
+    <%= button_link_to Spree.t(:new_product_upload), new_object_url,  :icon => 'plus', :id => 'admin_new_product_upload_link' %>
+  </li>
+<% end %>
+
+<% if @product_uploads.any? %>
+  <table class="index" id='listing_product_uploads'>
+    <colgroup>
+      <col style="width: 20%">
+      <col style="width: 15%">
+      <col style="width: 65%">
+    </colgroup>
+    <thead>
+      <tr data-hook="admin_product_uploads_index_headers">
+        <th>Uploaded On</th>
+        <th>Status</th>
+        <th>Message</th>
+        <th data-hook="admin_product_uploads_index_header_actions" class="actions"></th>
+      </tr>
+    </thead>
+    <tbody>
+      <% @product_uploads.each do |product_upload|%>
+        <tr id="<%= spree_dom_id product_upload %>" data-hook="admin_product_uploads_index_rows" class="<%= cycle('odd', 'even')%>">
+          <td class="align-center"><%= product_upload.created_at %></td>
+          <td class="align-center"><%= product_upload.success? ? "Success" : "Pending" %></td>
+          <td class="align-center"><pre><%= product_upload.message %></pre></td>
+        </tr>
+      <% end %>
+    </tbody>
+  </table>
+<% else %>
+  <div class="alpha twelve columns no-objects-found">
+    <%= Spree.t(:no_resource_found, resource: I18n.t(:other, scope: 'activerecord.models.spree/product_upload')) %>,
+    <%= link_to Spree.t(:add_one), spree.new_admin_product_upload_path %>!
+  </div>
+<% end %>
