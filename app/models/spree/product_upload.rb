@@ -91,7 +91,7 @@ module Spree
         image = URI.parse("#{c[:image_base_url]}/#{image_file_name}")
         if params[c[:images].first]
           begin
-            if product.images.first
+            if product.images.first && params['force_image']
               variant.images.first.attachment = image
             else
               variant.images = Spree::Image.create({:attachment => image,
