@@ -122,7 +122,11 @@ module Spree
       variant.save!
 
       product.taxons = [taxon]
-      product.available_on = Date.strptime(params[c[:available_on]],'%d.%m.%y') || Date.today - 1.day
+      if params[c[:available_on]]
+        product.available_on = Date.strptime(params[c[:available_on]],'%d.%m.%y') || Date.today - 1.day
+      else
+          product.available_on = Date.today - 1.day
+      end
       product.price = params[c[:price]] if product.price.blank?
       product.save!
     end
