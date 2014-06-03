@@ -50,6 +50,10 @@ module Spree
       master_taxon = taxonomy.taxons.where(parent_id: nil).first
       parent_taxon = master_taxon
       taxon = parent_taxon
+      image_file_name = params[c[:images].first]
+      if c[:image_file_is_sku_jpg] && image_file_name.blank?
+        image_file_name = "#{params[c[:variant_sku]]}.jpg"
+      end
       c[:taxons].each do |t|
         next if !params[t] || params[t].blank?
         taxon = parent_taxon.children.find_or_create_by(name: params[t],taxonomy_id: taxonomy.id)
@@ -67,7 +71,7 @@ module Spree
                                         price: params[c[:price]],
                                         sku: params[c[:variant_sku]],
                                        )
-        image = URI.parse("#{c[:image_base_url]}/#{params[c[:images].first]}")
+        image = URI.parse("#{c[:image_base_url]}/#{image_file_name}")
         if params[c[:images].first]
           begin
             Spree::Image.create({:attachment => image,
@@ -84,7 +88,7 @@ module Spree
         variant = product.variants.find_or_create_by(sku: params[c[:variant_sku]])
         variant.price = params[c[:price]]  if params[c[:price]] && !params[c[:price]].blank?
         product.name = params[c[:description]] if params[c[:description]] && !params[c[:description]].blank?
-        image = URI.parse("#{c[:image_base_url]}/#{params[c[:images].first]}")
+        image = URI.parse("#{c[:image_base_url]}/#{image_file_name}")
         if params[c[:images].first]
           begin
             if product.images.first

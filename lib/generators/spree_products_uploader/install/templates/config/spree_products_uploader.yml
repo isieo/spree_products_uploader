@@ -21,3 +21,4 @@ available_on: "ITEM FROM DATE"
 stock: "Stock Count"
 stock_location: "Warehouse Code"
 enabled: "enabled"
+image_file_is_sku_jpg: true
