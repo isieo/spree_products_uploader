@@ -30,7 +30,7 @@
         <tr id="<%= spree_dom_id product_upload %>" data-hook="admin_product_uploads_index_rows" class="<%= cycle('odd', 'even')%>">
           <td class="align-center"><%= product_upload.created_at %></td>
           <td class="align-center"><%= product_upload.success? ? "Success" : "Pending" %></td>
-          <td class="align-center"><pre><%= product_upload.message %></pre></td>
+          <td class="align-center"><textarea><%= product_upload.message %></textarea></td>
         </tr>
       <% end %>
     </tbody>

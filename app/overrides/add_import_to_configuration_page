@@ -1,0 +1,8 @@
+Deface::Override.new(:virtual_path => 'spree/admin/shared/_tabs',
+  :name => 'add_t33_to_admin_shared_tabs',
+  :insert_after => "erb[loud]:contains('tab :products')",
+  :text => "
+      <li>
+      <%= link_to 'Import', admin_product_uploads_url %>
+      </li>
+      ")
