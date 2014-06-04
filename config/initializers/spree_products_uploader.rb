@@ -6,6 +6,7 @@ else
  :quote_char=>"\"",
  :product_sku=>"Product SKU",
  :variant_sku=>"Variant SKU",
+ :name=>"Name",
  :description=>"Description",
  :price=>"Price",
  :taxon_parent=>"Taxonomy",
@@ -18,6 +19,7 @@ else
  :available_on=>"ITEM FROM DATE",
  :stock=>"Stock Count",
  :stock_location=>"Warehouse Code",
- :enabled=> "enabled"}
+ :enabled=> "enabled",
+ :image_file_is_sku_jpg=> true}
 
 end

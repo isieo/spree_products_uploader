@@ -38,7 +38,8 @@ module Spree
 
       stock_location = nil
       if params[c[:stock_location]]
-        stock_location = Spree::StockLocation.find_or_create_by(name: params[c[:stock_location]])
+        stock_location = Spree::StockLocation.where(admin_name: params[c[:stock_location]]).first
+        Spree::StockLocation.create(admin_name: params[c[:stock_location]],name: params[c[:stock_location]]) if stock_location.nil?
       else
         stock_location = Spree::StockLocation.find_or_create_by(name: "default")
       end
@@ -66,7 +67,8 @@ module Spree
 
       if !Variant.where(variant_query[:sku].matches("#{identifier}%")).exists?
         return if !params[c[:enabled]] || params[c[:enabled]].downcase == 'n' || params[c[:enabled]].downcase == 'false'
-        product = Spree::Product.create(name: params[c[:description]],
+        product = Spree::Product.create(name: params[c[:name]],
+                                        description: params[c[:description]],
                                         shipping_category_id: shipping_category.id,
                                         price: params[c[:price]],
                                         sku: params[c[:variant_sku]],
@@ -87,16 +89,30 @@ module Spree
         product = Variant.where(variant_query[:sku].matches("#{identifier}%")).first.product
         variant = product.variants.find_or_create_by(sku: params[c[:variant_sku]])
         variant.price = params[c[:price]]  if params[c[:price]] && !params[c[:price]].blank?
-        product.name = params[c[:description]] if params[c[:description]] && !params[c[:description]].blank?
+        product.name = params[c[:name]] if params[c[:name]] && !params[c[:name]].blank?
+        product.description = params[c[:description]] if params[c[:description]] && !params[c[:description]].blank?
         image = URI.parse("#{c[:image_base_url]}/#{image_file_name}")
         if params[c[:images].first]
           begin
-            if product.images.first && params['force_image']
-              variant.images.first.attachment = image
+            image_handler = nil
+            if variant.images.first && !variant.is_master?
+              image_handler  = variant.images.first
+              image_handler.attachment = image
+              image_handler.save
+            elsif variant.is_master? && variant.product.image.first
+              image_handler  = variant.product.images.first
+              image_handler.attachment = image
+              image_handler.save
             else
-              variant.images = Spree::Image.create({:attachment => image,
-                                      :viewable => variant
-                                      })
+              if !variant.is_master?
+                variant.images = Spree::Image.create({:attachment => image,
+                                        :viewable => variant
+                                        })
+              else
+                product.images = Spree::Image.create({:attachment => image,
+                                        :viewable => variant
+                                        })
+              end
             end
           rescue
           end

@@ -2,6 +2,7 @@ delimiter: ","
 quote_char: '"'
 product_sku: "Product SKU"
 variant_sku: "Variant SKU"
+name: "Name"
 description: "Description"
 price: "Price"
 taxon_parent: "Taxonomy"
