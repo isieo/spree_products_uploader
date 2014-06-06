@@ -66,6 +66,7 @@ module Spree
       identifier = params[c[:product_sku]] || params[c[:variant_sku]]
 
       if !Variant.where(variant_query[:sku].matches("#{identifier}%")).exists?
+        return if params[c[:description]].blank?
         return if !params[c[:enabled]] || params[c[:enabled]].downcase == 'n' || params[c[:enabled]].downcase == 'false'
         product = Spree::Product.create(name: params[c[:name]],
                                         description: params[c[:description]],
