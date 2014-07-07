@@ -66,10 +66,10 @@ module Spree
       identifier = params[c[:product_sku]] || params[c[:variant_sku]]
 
       if !Variant.where(variant_query[:sku].matches("#{identifier}%")).exists?
-        return if params[c[:description]].blank?
+        #return if params[c[:description]].blank?
         return if !params[c[:enabled]] || params[c[:enabled]].downcase == 'n' || params[c[:enabled]].downcase == 'false'
         product = Spree::Product.create(name: params[c[:name]],
-                                        description: params[c[:description]],
+                                        description: params[c[:description]] || '',
                                         shipping_category_id: shipping_category.id,
                                         price: params[c[:price]],
                                         sku: params[c[:variant_sku]],
@@ -86,12 +86,28 @@ module Spree
 
         variant = product.master
       else
-        #variant exist skip product creation
-        product = Variant.where(variant_query[:sku].matches("#{identifier}%")).first.product
-        variant = product.variants.find_or_create_by(sku: params[c[:variant_sku]])
-        variant.price = params[c[:price]]  if params[c[:price]] && !params[c[:price]].blank?
-        product.name = params[c[:name]] if params[c[:name]] && !params[c[:name]].blank?
-        product.description = params[c[:description]] if params[c[:description]] && !params[c[:description]].blank?
+        product = nil
+        variant = nil
+        if params[c[:product_sku]].nil? && !Variant.where(sku: params[c[:variant_sku]]).first.try('is_master?')
+          #no identifier but variant matched and not a master, promote to product
+          #return if params[c[:description]].blank?
+          return if !params[c[:enabled]] || params[c[:enabled]].downcase == 'n' || params[c[:enabled]].downcase == 'false'
+          Variant.where(sku: params[c[:variant_sku]]).first.delete # remove this variant.
+          product = Spree::Product.create(name: params[c[:name]],
+                                          description: params[c[:description]] || '',
+                                          shipping_category_id: shipping_category.id,
+                                          price: params[c[:price]],
+                                          sku: params[c[:variant_sku]],
+                                         )
+          variant = product.master
+        else
+          #variant exist skip product creation
+          product = Variant.where(variant_query[:sku].matches("#{identifier}%")).first.product
+          variant = product.variants.find_or_create_by(sku: params[c[:variant_sku]])
+          variant.price = params[c[:price]]  if params[c[:price]] && !params[c[:price]].blank?
+          product.name = params[c[:name]] if params[c[:name]] && !params[c[:name]].blank?
+          product.description = params[c[:description]] if params[c[:description]] && !params[c[:description]].blank?
+        end
         image = URI.parse("#{c[:image_base_url]}/#{image_file_name}")
         if params[c[:images].first]
           begin
