@@ -149,7 +149,8 @@ module Spree
         end
       else
         stock = variant.stock_items.where(stock_location_id: stock_location.id).first
-        stock.set_count_on_hand(params[c[:stock]])
+        stock = variant.stock_items.first if stock.nil?
+        stock.set_count_on_hand(params[c[:stock]]) if stock
       end
 
       variant.save!
