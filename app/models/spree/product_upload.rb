@@ -157,6 +157,7 @@ module Spree
 
       product.taxons = [taxon]
       if params[c[:available_on]]
+        parsed_date = Date.strptime(params[c[:available_on]],'%d.%m.%y') rescue(Date.today - 1.day)
         product.available_on = Date.strptime(params[c[:available_on]],'%d.%m.%y') || Date.today - 1.day
       else
           product.available_on = Date.today - 1.day
