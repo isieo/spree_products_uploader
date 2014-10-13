@@ -145,9 +145,6 @@ module Spree
 
       if !params[c[:enabled]] || params[c[:enabled]].downcase == 'n' || params[c[:enabled]].downcase == 'false'
         variant.delete
-        if variant.is_master?
-          #do something?
-        end
         #variant.stock_items.each do |si|
       #    si.set_count_on_hand(0)  # set items to 0 if not available.
       #  end
