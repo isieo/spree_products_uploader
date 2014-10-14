@@ -159,7 +159,7 @@ module Spree
       end
 
       if !params[c[:enabled]] || params[c[:enabled]].downcase == 'n' || params[c[:enabled]].downcase == 'false'
-        product.available_on = Date.today - 90.years
+        product.available_on = Date.today + 90.years
       else
 
         product.taxons = [taxon]
