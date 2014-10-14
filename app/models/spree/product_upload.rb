@@ -158,13 +158,17 @@ module Spree
         variant.save!
       end
 
-
-      product.taxons = [taxon]
-      if params[c[:available_on]]
-        parsed_date = Date.strptime(params[c[:available_on]],'%d.%m.%y') rescue(Date.today - 1.day)
-        product.available_on = parsed_date || Date.today - 1.day
+      if !params[c[:enabled]] || params[c[:enabled]].downcase == 'n' || params[c[:enabled]].downcase == 'false'
+        product.available_on = Date.today - 90.years
       else
-          product.available_on = Date.today - 1.day
+
+        product.taxons = [taxon]
+        if params[c[:available_on]]
+          parsed_date = Date.strptime(params[c[:available_on]],'%d.%m.%y') rescue(Date.today - 1.day)
+          product.available_on = parsed_date || Date.today - 1.day
+        else
+            product.available_on = Date.today - 1.day
+        end
       end
       product.price = params[c[:price]] if product.price.blank?
       product.save!
