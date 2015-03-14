@@ -1,6 +1,6 @@
 module Spree
   class ProductUpload < ActiveRecord::Base
-    has_attached_file :csv_data
+    has_attached_file :csv_data, storage: :filesystem
     after_commit :start_import, :on => :create
     default_scope ->{order(id: :desc)}
     def config
