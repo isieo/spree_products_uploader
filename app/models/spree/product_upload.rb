@@ -105,6 +105,7 @@ module Spree
           product = Variant.where(variant_query[:sku].matches("#{identifier}%")).first.product
           variant = product.variants.find_or_create_by(sku: params[c[:variant_sku]])
           variant.price = params[c[:price]]  if params[c[:price]] && !params[c[:price]].blank?
+          product.price = params[c[:price]]  if params[c[:price]] && !params[c[:price]].blank? && product.variants.count == 1
           product.name = params[c[:name]] if params[c[:name]] && !params[c[:name]].blank?
           product.description = params[c[:description]] if params[c[:description]] && !params[c[:description]].blank?
         end
