@@ -171,7 +171,7 @@ module Spree
             product.available_on = Date.today - 1.day
         end
       end
-      product.price = params[c[:price]] if product.price.blank?
+      product.price = params[c[:price]] if product.price.blank? || product.variants.count == 1
       product.save!
     end
 
