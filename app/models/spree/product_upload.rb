@@ -31,7 +31,9 @@ module Spree
     end
 
     def create_product(params)
+      puts "Creating Product"
       c = self.config
+      puts params.inspect
       return if !params[c[:price]] || params[c[:price]].empty?
       return if !params[c[:variant_sku]] || params[c[:variant_sku]].empty?
       puts "sku: #{params[c[:variant_sku]]}"
