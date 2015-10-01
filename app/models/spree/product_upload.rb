@@ -68,6 +68,7 @@ module Spree
       identifier = params[c[:product_sku]] || params[c[:variant_sku]]
 
       if !Variant.where(variant_query[:sku].matches("#{identifier}%")).exists?
+        return if params[c[:delete]] == 'yes'
         #return if params[c[:description]].blank?
         return if !params[c[:enabled]] || params[c[:enabled]].downcase == 'n' || params[c[:enabled]].downcase == 'false'
         product = Spree::Product.create(name: params[c[:name]],
@@ -91,6 +92,10 @@ module Spree
         product = nil
         variant = nil
         if params[c[:product_sku]].nil? && !Variant.where(sku: params[c[:variant_sku]]).first.try('is_master?')
+          if params[c[:delete]] == 'yes'
+            Variant.where(sku: params[c[:variant_sku]]).each{|v| v.delete}
+            return
+          end
           #no identifier but variant matched and not a master, promote to product
           #return if params[c[:description]].blank?
           return if !params[c[:enabled]] || params[c[:enabled]].downcase == 'n' || params[c[:enabled]].downcase == 'false'
@@ -104,6 +109,24 @@ module Spree
           variant = product.master
         else
           #variant exist skip product creation
+
+          if params[c[:delete]] == 'yes'
+            v = Variant.where(sku: params[c[:variant_sku]])
+            if !v.blank?
+              variant_is_master = v.first.is_master?
+              v.each{|v| v.delete}
+              if variant_is_master
+                if v.first.product.variants.count > 0
+                  v.first.delete
+                  v.product.variant.first.update :master: true
+                else
+                  v.first.product.delete
+                end
+              end
+              return
+            end
+          end
+
           product = Variant.where(variant_query[:sku].matches("#{identifier}%")).first.product
           variant = product.variants.find_or_create_by(sku: params[c[:variant_sku]])
           variant.price = params[c[:price]]  if params[c[:price]] && !params[c[:price]].blank?

@@ -20,6 +20,7 @@ else
  :stock=>"Stock Count",
  :stock_location=>"Warehouse Code",
  :enabled=> "enabled",
+ :delete=> "delete",
  :image_file_is_sku_jpg=> true}
 
 end
