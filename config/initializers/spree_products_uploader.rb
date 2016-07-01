@@ -21,6 +21,8 @@ else
  :stock_location=>"Warehouse Code",
  :enabled=> "enabled",
  :delete=> "delete",
- :image_file_is_sku_jpg=> true}
+ :image_file_is_sku_jpg=> true,
+ :skip_image=> "skip_image"
+  }
 
 end
