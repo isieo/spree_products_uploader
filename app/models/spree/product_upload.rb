@@ -77,13 +77,15 @@ module Spree
                                         price: params[c[:price]],
                                         sku: params[c[:variant_sku]],
                                        )
-        image = URI.parse("#{c[:image_base_url]}/#{image_file_name}")
-        if params[c[:images].first]
-          begin
-            Spree::Image.create({:attachment => image,
-                                 :viewable => product
-                                 })
-          rescue
+        if c[:skip_image].blank?
+          image = URI.parse("#{c[:image_base_url]}/#{image_file_name}")
+          if params[c[:images].first]
+            begin
+              Spree::Image.create({:attachment => image,
+                                   :viewable => product
+                                   })
+            rescue
+            end
           end
         end
 
@@ -140,30 +142,32 @@ module Spree
           product.name = params[c[:name]] if params[c[:name]] && !params[c[:name]].blank?
           product.description = params[c[:description]] if params[c[:description]] && !params[c[:description]].blank?
         end
-        image = URI.parse("#{c[:image_base_url]}/#{image_file_name}")
-        if params[c[:images].first]
-          begin
-            image_handler = nil
-            if variant.images.first && !variant.is_master?
-              image_handler  = variant.images.first
-              image_handler.attachment = image
-              image_handler.save
-            elsif variant.is_master? && variant.product.image.first
-              image_handler  = variant.product.images.first
-              image_handler.attachment = image
-              image_handler.save
-            else
-              if !variant.is_master?
-                variant.images = Spree::Image.create({:attachment => image,
-                                        :viewable => variant
-                                        })
+        if c[:skip_image].blank?
+          image = URI.parse("#{c[:image_base_url]}/#{image_file_name}")
+          if params[c[:images].first]
+            begin
+              image_handler = nil
+              if variant.images.first && !variant.is_master?
+                image_handler  = variant.images.first
+                image_handler.attachment = image
+                image_handler.save
+              elsif variant.is_master? && variant.product.image.first
+                image_handler  = variant.product.images.first
+                image_handler.attachment = image
+                image_handler.save
               else
-                product.images = Spree::Image.create({:attachment => image,
-                                        :viewable => variant
-                                        })
+                if !variant.is_master?
+                  variant.images = Spree::Image.create({:attachment => image,
+                                          :viewable => variant
+                                          })
+                else
+                  product.images = Spree::Image.create({:attachment => image,
+                                          :viewable => variant
+                                          })
+                end
               end
+            rescue
             end
-          rescue
           end
         end
       end
