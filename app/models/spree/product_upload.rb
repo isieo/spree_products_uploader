@@ -34,6 +34,25 @@ module Spree
       puts "Creating Product"
       c = self.config
       puts params.inspect
+      
+      if params[c[:delete]] == 'yes'
+        v = Variant.where(sku: params[c[:variant_sku]])
+        puts "Deleting #{params[c[:variant_sku]]}"
+        if !v.blank?
+          variant_is_master = v.first.is_master?
+          if variant_is_master
+            if v.first.product.variants.count > 0
+              v.first.delete
+              v.product.variant.first.update(:master, true)
+            else
+              v.first.product.delete
+            end
+          end
+          v.each{|v| v.delete}
+          return
+        end
+        return
+      end
       return if !params[c[:price]] || params[c[:price]].empty?
       return if !params[c[:variant_sku]] || params[c[:variant_sku]].empty?
       puts "sku: #{params[c[:variant_sku]]}"
@@ -45,7 +64,7 @@ module Spree
       else
         stock_location = Spree::StockLocation.find_or_create_by(name: "default")
       end
-
+      
       variant_query = Arel::Table.new(:spree_variants)
       product = nil
       variant = nil
