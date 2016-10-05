@@ -43,7 +43,7 @@ module Spree
           if variant_is_master
             if v.first.product.variants.count > 0
               v.first.delete
-              v.first.product.variants.first.update(:master => true) 
+              v.first.product.variants.first.update(:is_master => true) 
             else
               v.first.product.delete
             end
