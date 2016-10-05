@@ -48,7 +48,13 @@ module Spree
               v.first.product.delete
             end
           end
-          v.each{|v| v.delete}
+          v.each do |vr| 
+            vr.stock_items.each do |si|
+              si.set_count_on_hand(0)  # set items to 0 if not available.
+              si.update(backorderable: false)
+            end
+            vr.delete
+          end
           return
         end
         return
