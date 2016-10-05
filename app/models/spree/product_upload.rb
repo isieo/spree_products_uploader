@@ -95,6 +95,7 @@ module Spree
         variant = nil
         if params[c[:product_sku]].nil? && !Variant.where(sku: params[c[:variant_sku]]).first.try('is_master?')
           if params[c[:delete]] == 'yes'
+            puts "Deleting #{params[c[:variant_sku]]}"
             Variant.where(sku: params[c[:variant_sku]]).each{|v| v.delete}
             return
           end
@@ -114,6 +115,7 @@ module Spree
 
           if params[c[:delete]] == 'yes'
             v = Variant.where(sku: params[c[:variant_sku]])
+            puts "Deleting #{params[c[:variant_sku]]}"
             if !v.blank?
               variant_is_master = v.first.is_master?
               v.each{|v| v.delete}
