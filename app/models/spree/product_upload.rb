@@ -190,7 +190,7 @@ module Spree
                                           })
                 else
                   product.images = Spree::Image.create({:attachment => image,
-                                          :viewable => variant
+                                          :viewable => product
                                           })
                 end
               end
