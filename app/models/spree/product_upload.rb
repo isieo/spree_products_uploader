@@ -34,7 +34,7 @@ module Spree
       puts "Creating Product"
       c = self.config
       puts params.inspect
-      
+
       if params[c[:delete]] == 'yes'
         v = Variant.where(sku: params[c[:variant_sku]])
         puts "Deleting #{params[c[:variant_sku]]}"
@@ -43,12 +43,12 @@ module Spree
           if variant_is_master
             if v.first.product.variants.count > 0
               v.first.delete
-              v.first.product.variants.first.update(:is_master => true) 
+              v.first.product.variants.first.update(:is_master => true)
             else
               v.first.product.delete
             end
           end
-          v.each do |vr| 
+          v.each do |vr|
             vr.stock_items.each do |si|
               si.set_count_on_hand(0)  # set items to 0 if not available.
               si.update(backorderable: false)
@@ -70,7 +70,7 @@ module Spree
       else
         stock_location = Spree::StockLocation.find_or_create_by(name: "default")
       end
-      
+
       variant_query = Arel::Table.new(:spree_variants)
       product = nil
       variant = nil
@@ -93,6 +93,7 @@ module Spree
       identifier = params[c[:product_sku]] || params[c[:variant_sku]]
 
       if !Variant.where(variant_query[:sku].matches("#{identifier}%")).exists?
+        puts "Variant Exist for identifier: #{identifier}"
         return if params[c[:delete]] == 'yes'
         #return if params[c[:description]].blank?
         return if !params[c[:enabled]] || params[c[:enabled]].downcase == 'n' || params[c[:enabled]].downcase == 'false'
@@ -136,7 +137,7 @@ module Spree
                                          )
           variant = product.master
         else
-          #variant exist skip product creation
+          puts "variant exist skip product creation"
 
           if params[c[:delete]] == 'yes'
             v = Variant.where(sku: params[c[:variant_sku]])
@@ -159,10 +160,10 @@ module Spree
           product = Variant.where(variant_query[:sku].matches("#{identifier}%")).first.product
           variant = nil
           v_search = product.variants_including_master.where(sku: params[c[:variant_sku]])
-          if v_search.count > 1 
-            variant = product.variants_including_master.create(sku: params[c[:variant_sku]])
-          else
+          if v_search.count > 1
             variant = v_search.first
+          else
+            variant = product.variants_including_master.create(sku: params[c[:variant_sku]])
           end
           variant.price = params[c[:price]]  if params[c[:price]] && !params[c[:price]].blank?
           product.price = params[c[:price]]  if params[c[:price]] && !params[c[:price]].blank? && product.variants.count == 1
