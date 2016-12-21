@@ -170,31 +170,30 @@ module Spree
           product.name = params[c[:name]] if params[c[:name]] && !params[c[:name]].blank?
           product.description = params[c[:description]] if params[c[:description]] && !params[c[:description]].blank?
         end
-        if c[:skip_image].blank?
+        puts "Starting Image Import (Skip: #{!params[c[:skip_image]].blank?})"
+        if params[c[:skip_image]].blank?
           image = URI.parse("#{c[:image_base_url]}/#{image_file_name}")
           if params[c[:images].first]
+            puts "importing image #{c[:image_base_url]}/#{image_file_name}"
             begin
               image_handler = nil
               if variant.images.first && !variant.is_master?
                 image_handler  = variant.images.first
                 image_handler.attachment = image
                 image_handler.save
-              elsif variant.is_master? && variant.product.image.first
+              elsif variant.is_master? && variant.product.images.first
                 image_handler  = variant.product.images.first
                 image_handler.attachment = image
                 image_handler.save
               else
                 if !variant.is_master?
-                  variant.images = Spree::Image.create({:attachment => image,
-                                          :viewable => variant
-                                          })
+                  variant.images.create({:attachment => image})
                 else
-                  product.images = Spree::Image.create({:attachment => image,
-                                          :viewable => product
-                                          })
+                  product.images.create({:attachment => image})
                 end
               end
-            rescue
+            rescue Exception => e
+              puts "error saving image from #{c[:image_base_url]}/#{image_file_name}, #{e.message}"
             end
           end
         end
