@@ -160,7 +160,7 @@ module Spree
           product = Variant.where(variant_query[:sku].matches("#{identifier}%")).first.product
           variant = nil
           v_search = product.variants_including_master.where(sku: params[c[:variant_sku]])
-          if v_search.count > 1
+          if v_search.count > 0
             variant = v_search.first
           else
             variant = product.variants_including_master.create(sku: params[c[:variant_sku]])
@@ -170,25 +170,29 @@ module Spree
           product.name = params[c[:name]] if params[c[:name]] && !params[c[:name]].blank?
           product.description = params[c[:description]] if params[c[:description]] && !params[c[:description]].blank?
         end
-        puts "Starting Image Import (Skip: #{!params[c[:skip_image]].blank?})"
+        puts "Starting Image Import (Skip?: #{!params[c[:skip_image]].blank?})"
         if params[c[:skip_image]].blank?
           image = URI.parse("#{c[:image_base_url]}/#{image_file_name}")
-          if params[c[:images].first]
+          if image_file_name
             puts "importing image #{c[:image_base_url]}/#{image_file_name}"
             begin
               image_handler = nil
               if variant.images.first && !variant.is_master?
+                puts "Variant Image Exist, replacing"
                 image_handler  = variant.images.first
                 image_handler.attachment = image
                 image_handler.save
               elsif variant.is_master? && variant.product.images.first
+                puts "Product Image Exist, replacing"
                 image_handler  = variant.product.images.first
                 image_handler.attachment = image
                 image_handler.save
               else
                 if !variant.is_master?
+                  puts "Creating Variant Image"
                   variant.images.create({:attachment => image})
                 else
+                  puts "Creating Master Image"
                   product.images.create({:attachment => image})
                 end
               end
