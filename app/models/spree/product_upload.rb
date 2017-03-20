@@ -128,7 +128,7 @@ module Spree
           #no identifier but variant matched and not a master, promote to product
           #return if params[c[:description]].blank?
           return if !params[c[:enabled]] || params[c[:enabled]].downcase == 'n' || params[c[:enabled]].downcase == 'false'
-          Variant.where(sku: params[c[:variant_sku]]).first.delete # remove this variant.
+          Variant.where(sku: params[c[:variant_sku]]).first.try(:delete) # remove this variant.
           product = Spree::Product.create(name: params[c[:name]],
                                           description: params[c[:description]] || '',
                                           shipping_category_id: shipping_category.id,
